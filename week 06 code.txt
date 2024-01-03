@@ -1,0 +1,105 @@
+#include <iostream> 
+#include <limits> 
+const double COST_CEMENT = 3;
+const double COST_GRAVEL = 2;
+const double COST_SAND = 2;
+const double DISCOUNT_PRICE = 10;
+struct Sack { 
+ char contents;
+ double weight;
+ bool accepted;
+ std::string rejectionReason;
+};
+Sack checkSingleSack() { 
+ Sack sack;
+ // Validate contents input 
+ do { 
+ std::cout << "Enter the content of the sack (C, G, or S): ";
+ std::cin >> sack.contents;
+ if (std::cin.fail() || (sack.contents != 'C' && sack.contents != 'G' && sack.contents 
+!= 'S')) { 
+ std::cin.clear();
+ std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+ sack.rejectionReason = "Invalid contents. Please enter C, G, or S.";
+ sack.accepted = false;
+ std::cout << "Sack rejected. Reason: " << sack.rejectionReason << std::endl;
+ } else { 
+ sack.accepted = true;
+ } 
+ } while (!sack.accepted);
+ // Validate weight input 
+ do { 
+ std::cout << "Enter the weight of the sack in kilograms: ";
+ std::cin >> sack.weight;
+ if (std::cin.fail() || sack.weight <= 0 || 
+ (sack.contents == 'C' && !(24.9 < sack.weight && sack.weight < 25.1)) || 
+ ((sack.contents == 'G' || sack.contents == 'S') && !(49.9 < sack.weight && 
+sack.weight < 50.1))) { 
+ std::cin.clear();
+ std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+ sack.rejectionReason = "Invalid weight for the sack.";
+ sack.accepted = false;
+ std::cout << "Sack rejected. Reason: " << sack.rejectionReason << std::endl;
+ } else { 
+ break; // exit the loop if input is valid
+ } 
+ } while (true);
+ return sack;
+} 
+void checkCustomerOrder(int& numCement, int& numGravel, int& numSand, 
+double& totalWeight, int& sacksRejected) { 
+ std::cout << "Enter the number of sacks in the customer's order: ";
+ int numSacks;
+ std::cin >> numSacks;
+ // Check each sack in the order 
+ for (int i = 1; i <= numSacks; ++i) {
+ std::cout << "Enter details for Sack " << i << ":" << std::endl;
+ Sack sack = checkSingleSack();
+ if (sack.accepted) { 
+ totalWeight += sack.weight;
+ std::cout << "Sack Content: " << sack.contents << ", Weight: " << sack.weight 
+<< " kg - Accepted" << std::endl;
+ } else { 
+ sacksRejected++;
+ } 
+ } 
+ std::cout << "\nChecking customer's order for delivery:" << std::endl;
+ std::cout << "Total weight of the order: " << totalWeight << " kg" << std::endl;
+ std::cout << "Number of rejected sacks: " << sacksRejected << std::endl;
+} 
+void calculateOrderPrice(int numCement, int numGravel, int numSand, double 
+totalWeight) { 
+ double regularPrice = COST_CEMENT * numCement + COST_GRAVEL * 
+numGravel + COST_SAND * numSand;
+ int numDiscountPacks = std::min(std::min(numCement, numSand / 2), numGravel / 
+2);
+ double discountPrice = numDiscountPacks * DISCOUNT_PRICE;
+ double finalPrice = regularPrice - discountPrice;
+ std::cout << "\nPrice for a customer's order" << std::endl;
+ std::cout << "Calculating the price for the customer's order:" << std::endl;
+ std::cout << "Regular Price: $" << regularPrice << std::endl;
+ if (numDiscountPacks > 0) { 
+ std::cout << "Discount Price for the order: $" << discountPrice << std::endl;
+ std::cout << "Final Price for the order: $" << finalPrice << std::endl;
+ std::cout << "Amount saved: $" << regularPrice - finalPrice << std::endl;
+ } else { 
+ std::cout << "No special pack discount applied." << std::endl;
+ } 
+} 
+int main() { 
+ // Task 1 
+ Sack singleSack = checkSingleSack();
+ if (singleSack.accepted) { 
+ std::cout << "Sack Accepted - Content: " << singleSack.contents << ", Weight: " 
+<< singleSack.weight << " kg" 
+ << std::endl;
+ } 
+ // Task 2 
+ int numCement, numGravel, numSand, sacksRejected = 0;
+ double totalWeight = 0;
+ checkCustomerOrder(numCement, numGravel, numSand, totalWeight, 
+sacksRejected);
+ // Task 3 
+ calculateOrderPrice(numCement, numGravel, numSand, totalWeight);
+ return 0;
+} 
